@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickPoll Real-time Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .message {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            border-left: 4px solid #007bff;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .poll-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 QuickPoll Real-time Test</h1>
+    
+    <div class="container">
+        <h2>WebSocket Connection</h2>
+        <div id="status" class="status disconnected">Disconnected</div>
+        <button id="connectBtn" onclick="connect()">Connect</button>
+        <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+    </div>
+    
+    <div class="container">
+        <h2>Create Poll</h2>
+        <input type="text" id="pollTitle" placeholder="Poll Title" value="Test Poll">
+        <textarea id="pollDesc" placeholder="Poll Description">Testing real-time updates</textarea>
+        <button onclick="createPoll()">Create Poll</button>
+    </div>
+    
+    <div class="container">
+        <h2>Vote on Poll</h2>
+        <input type="number" id="pollId" placeholder="Poll ID" value="1">
+        <input type="number" id="optionId" placeholder="Option ID" value="1">
+        <input type="text" id="userId" placeholder="User ID" value="user1">
+        <button onclick="vote()">Vote</button>
+    </div>
+    
+    <div class="container">
+        <h2>Like Poll</h2>
+        <input type="number" id="likePollId" placeholder="Poll ID" value="1">
+        <input type="text" id="likeUserId" placeholder="User ID" value="user1">
+        <button onclick="likePoll()">Like Poll</button>
+    </div>
+    
+    <div class="container">
+        <h2>Real-time Messages</h2>
+        <div id="messages"></div>
+        <button onclick="clearMessages()">Clear Messages</button>
+    </div>
+    
+    <div class="container">
+        <h2>Polls List</h2>
+        <button onclick="loadPolls()">Load Polls</button>
+        <div id="pollsList"></div>
+    </div>
+
+    <script>
+        let ws = null;
+        const API_BASE = 'http://localhost:8000';
+        
+        function updateStatus(connected) {
+            const status = document.getElementById('status');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            
+            if (connected) {
+                status.textContent = 'Connected';
+                status.className = 'status connected';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+            } else {
+                status.textContent = 'Disconnected';
+                status.className = 'status disconnected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+            }
+        }
+        
+        function addMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            messagesDiv.insertBefore(messageDiv, messagesDiv.firstChild);
+        }
+        
+        function connect() {
+            if (ws) return;
+            
+            ws = new WebSocket('ws://localhost:8000/ws');
+            
+            ws.onopen = function() {
+                updateStatus(true);
+                addMessage('WebSocket connected!');
+            };
+            
+            ws.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    let message = `Update: ${data.type}`;
+                    
+                    if (data.poll) {
+                        message += ` - Poll: "${data.poll.title}"`;
+                    }
+                    if (data.vote) {
+                        message += ` - Vote: User ${data.vote.user_id} voted on option ${data.vote.option_id}`;
+                    }
+                    if (data.like) {
+                        message += ` - Like: User ${data.like.user_id} liked poll ${data.like.poll_id}`;
+                    }
+                    
+                    addMessage(message);
+                } catch (e) {
+                    addMessage(`Raw message: ${event.data}`);
+                }
+            };
+            
+            ws.onclose = function() {
+                updateStatus(false);
+                addMessage('WebSocket disconnected');
+                ws = null;
+            };
+            
+            ws.onerror = function(error) {
+                addMessage(`WebSocket error: ${error}`);
+            };
+        }
+        
+        function disconnect() {
+            if (ws) {
+                ws.close();
+            }
+        }
+        
+        async function createPoll() {
+            const title = document.getElementById('pollTitle').value;
+            const description = document.getElementById('pollDesc').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/polls/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description })
+                });
+                
+                if (response.ok) {
+                    const poll = await response.json();
+                    addMessage(`Created poll: "${poll.title}" (ID: ${poll.id})`);
+                    
+                    // Add some options
+                    await addOptions(poll.id);
+                } else {
+                    addMessage(`Failed to create poll: ${response.status}`);
+                }
+            } catch (e) {
+                addMessage(`Error creating poll: ${e.message}`);
+            }
+        }
+        
+        async function addOptions(pollId) {
+            const options = ['Option A', 'Option B', 'Option C'];
+            
+            for (const optionText of options) {
+                try {
+                    const response = await fetch(`${API_BASE}/polls/${pollId}/options/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: optionText, poll_id: pollId })
+                    });
+                    
+                    if (response.ok) {
+                        addMessage(`Added option: "${optionText}"`);
+                    }
+                } catch (e) {
+                    addMessage(`Error adding option: ${e.message}`);
+                }
+            }
+        }
+        
+        async function vote() {
+            const pollId = document.getElementById('pollId').value;
+            const optionId = document.getElementById('optionId').value;
+            const userId = document.getElementById('userId').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/polls/${pollId}/vote/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ poll_id: parseInt(pollId), option_id: parseInt(optionId), user_id: userId })
+                });
+                
+                if (response.ok) {
+                    addMessage(`Vote cast by ${userId} on poll ${pollId}, option ${optionId}`);
+                } else {
+                    addMessage(`Failed to vote: ${response.status}`);
+                }
+            } catch (e) {
+                addMessage(`Error voting: ${e.message}`);
+            }
+        }
+        
+        async function likePoll() {
+            const pollId = document.getElementById('likePollId').value;
+            const userId = document.getElementById('likeUserId').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/polls/${pollId}/like/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ poll_id: parseInt(pollId), user_id: userId })
+                });
+                
+                if (response.ok) {
+                    addMessage(`Like added by ${userId} on poll ${pollId}`);
+                } else {
+                    addMessage(`Failed to like: ${response.status}`);
+                }
+            } catch (e) {
+                addMessage(`Error liking: ${e.message}`);
+            }
+        }
+        
+        async function loadPolls() {
+            try {
+                const response = await fetch(`${API_BASE}/polls/`);
+                if (response.ok) {
+                    const polls = await response.json();
+                    const pollsDiv = document.getElementById('pollsList');
+                    pollsDiv.innerHTML = '';
+                    
+                    polls.forEach(poll => {
+                        const pollDiv = document.createElement('div');
+                        pollDiv.className = 'poll-item';
+                        pollDiv.innerHTML = `
+                            <h3>${poll.title}</h3>
+                            <p>${poll.description || 'No description'}</p>
+                            <p><strong>ID:</strong> ${poll.id} | <strong>Created:</strong> ${new Date(poll.created_at).toLocaleString()}</p>
+                        `;
+                        pollsDiv.appendChild(pollDiv);
+                    });
+                    
+                    addMessage(`Loaded ${polls.length} polls`);
+                } else {
+                    addMessage(`Failed to load polls: ${response.status}`);
+                }
+            } catch (e) {
+                addMessage(`Error loading polls: ${e.message}`);
+            }
+        }
+        
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+        
+        // Auto-connect on page load
+        window.onload = function() {
+            addMessage('Page loaded. Click "Connect" to start receiving real-time updates!');
+        };
+    </script>
+</body>
+</html>
