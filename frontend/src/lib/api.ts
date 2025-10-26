@@ -103,8 +103,22 @@ class ApiClient {
     });
   }
 
-  async getPolls(): Promise<Poll[]> {
-    return this.request<Poll[]>('/polls/');
+  async getPolls(status: 'all' | 'active' = 'all', sort: 'newest' | 'popular' | 'trending' = 'newest'): Promise<Poll[]> {
+    let endpoint = '/polls/';
+    const params = new URLSearchParams();
+
+    if (status !== 'all') {
+      params.append('status', status);
+    }
+    if (sort !== 'newest') { // Assuming 'newest' is the default sort on the backend
+      params.append('sort_by', sort);
+    }
+
+    if (params.toString()) {
+      endpoint += `?${params.toString()}`;
+    }
+
+    return this.request<Poll[]>(endpoint);
   }
 
   async getPoll(id: number): Promise<PollWithDetails> {

@@ -118,31 +118,7 @@ export default function PollDetailPage() {
     }
   };
 
-  const handleClosePoll = async () => {
-    if (!poll) return;
-
-    try {
-      await apiClient.closePoll(poll.id);
-      toast.success('Poll closed successfully!');
-      await loadPoll(); // Refresh to show updated status
-    } catch (error) {
-      console.error('Error closing poll:', error);
-      toast.error('Failed to close poll');
-    }
-  };
-
-  const handleReopenPoll = async () => {
-    if (!poll) return;
-
-    try {
-      await apiClient.reopenPoll(poll.id);
-      toast.success('Poll reopened successfully!');
-      await loadPoll(); // Refresh to show updated status
-    } catch (error) {
-      console.error('Error reopening poll:', error);
-      toast.error('Failed to reopen poll');
-    }
-  };
+  
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -396,26 +372,7 @@ export default function PollDetailPage() {
                     <span>{poll.total_likes}</span>
                   </Button>
 
-                  {/* Poll Management Buttons */}
-                  {poll.status === 'active' ? (
-                    <Button
-                      variant="outline"
-                      onClick={handleClosePoll}
-                      className="flex items-center gap-2 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                    >
-                      <Lock className="w-4 h-4" />
-                      Close Poll
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      onClick={handleReopenPoll}
-                      className="flex items-center gap-2 text-green-600 hover:text-green-700 hover:bg-green-50"
-                    >
-                      <Unlock className="w-4 h-4" />
-                      Reopen Poll
-                    </Button>
-                  )}
+                  
                 </div>
 
                 <div className="text-sm text-gray-500">

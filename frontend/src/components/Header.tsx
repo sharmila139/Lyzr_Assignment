@@ -62,8 +62,8 @@ export default function Header({ onCreatePollClick }: { onCreatePollClick: () =>
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-              <span className="gradient-text bg-gradient-to-r from-white to-yellow-300">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-1">
+              <span className="gradient-text bg-gradient-to-r from-white-10 to-yellow-80">
                 QuickPoll
               </span>
             </h1>
@@ -76,7 +76,7 @@ export default function Header({ onCreatePollClick }: { onCreatePollClick: () =>
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            Real-time opinion polling platform with live updates, beautiful animations, 
+            Real-time opinion polling platform with live updates 
             and instant results. Create polls, vote, and watch results update in real-time!
           </motion.p>
 
@@ -137,7 +137,7 @@ export default function Header({ onCreatePollClick }: { onCreatePollClick: () =>
           </motion.div>
 
           {/* CTA Buttons */}
-          <motion.div
+          {/*<motion.div
             className="flex flex-col sm:flex-row gap-4 justify-center"
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -146,7 +146,11 @@ export default function Header({ onCreatePollClick }: { onCreatePollClick: () =>
             <Button
               size="lg"
               className="bg-white text-blue-600 hover:bg-blue-50 text-lg px-8 py-4 rounded-full shadow-lg hover-lift"
-              onClick={() => document.getElementById('polls-section')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() =>
+                document
+                  .getElementById('polls-section')
+                  ?.scrollIntoView({ behavior: 'smooth' })
+              }
             >
               Explore Polls
             </Button>
@@ -155,9 +159,9 @@ export default function Header({ onCreatePollClick }: { onCreatePollClick: () =>
               className="bg-blue-500 text-white hover:bg-blue-600 text-lg px-8 py-4 rounded-full shadow-lg hover-lift"
               onClick={onCreatePollClick}
             >
-              Create Poll
+              Create Polls
             </Button>
-          </motion.div>
+          </motion.div>*/}
         </div>
       </div>
 

@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "QuickPoll - Real-time Opinion Polling",
-  description: "Beautiful real-time opinion polling platform with live updates and stunning animations",
+  description: "Beautiful real-time opinion polling platform with live updates",
 };
 
 export default function RootLayout({

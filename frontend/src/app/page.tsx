@@ -17,12 +17,14 @@ export default function HomePage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedPollId, setSelectedPollId] = useState<number | null>(null);
   const [userId] = useState(() => `user_${Math.random().toString(36).substr(2, 9)}`);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active'>('all');
+  const [sortBy, setSortBy] = useState<'newest' | 'popular' | 'trending'>('newest');
 
   // Load polls
-  const loadPolls = async () => {
+  const loadPolls = async (status: 'all' | 'active', sort: 'newest' | 'popular' | 'trending') => {
     try {
       setIsLoading(true);
-      const pollsData = await apiClient.getPolls();
+      const pollsData = await apiClient.getPolls(status, sort);
       
       // Get detailed data for each poll
       const pollsWithDetails = await Promise.all(
@@ -77,7 +79,7 @@ export default function HomePage() {
             duration: 3000,
           });
           // Refresh polls to get updated options
-          loadPolls();
+          loadPolls(filterStatus, sortBy);
           break;
           
         case 'vote_cast':
@@ -128,13 +130,13 @@ export default function HomePage() {
     connectWebSocket();
 
     // Load initial data
-    loadPolls();
+    loadPolls(filterStatus, sortBy);
 
     // Cleanup on unmount
     return () => {
       wsClient.disconnect();
     };
-  }, []);
+  }, [filterStatus, sortBy]);
 
   const handleViewPoll = (pollId: number) => {
     setSelectedPollId(pollId);
@@ -157,7 +159,7 @@ export default function HomePage() {
   };
 
   const handlePollCreated = () => {
-    loadPolls();
+    loadPolls(filterStatus, sortBy);
   };
 
   return (
@@ -174,9 +176,13 @@ export default function HomePage() {
           onViewPoll={handleViewPoll}
           onLike={handleLikePoll}
           onCreatePoll={handleCreatePoll}
-          onRefresh={loadPolls}
+                      onRefresh={() => loadPolls(filterStatus, sortBy)}
           userId={userId}
           isLoading={isLoading}
+          filterStatus={filterStatus}
+          setFilterStatus={setFilterStatus}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
         />
       </main>
 
@@ -201,16 +207,15 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 1.2 }}
           >
             <h3 className="text-2xl font-bold mb-4">QuickPoll</h3>
-            <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              Real-time opinion polling platform with beautiful animations and instant updates. 
+            <p className="text-gray-100 mb-6 max-w-2xl mx-auto">
+              Real-time opinion polling platform with instant updates. 
               Create polls, vote, and watch results update live across all connected users.
             </p>
             <div className="flex justify-center items-center gap-8 text-sm text-gray-400">
               <span>Built with Next.js & FastAPI</span>
               <span>•</span>
               <span>Real-time WebSocket updates</span>
-              <span>•</span>
-              <span>Beautiful animations</span>
+            
             </div>
           </motion.div>
         </div>

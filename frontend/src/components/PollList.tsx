@@ -23,9 +23,13 @@ interface PollListProps {
   onViewPoll: (pollId: number) => void;
   onLike: (pollId: number) => void;
   onCreatePoll: () => void;
-  onRefresh: () => void;
+  onRefresh: (filterStatus: 'all' | 'active' | 'closed', sortBy: 'newest' | 'popular' | 'trending') => void;
   userId: string;
   isLoading?: boolean;
+  filterStatus: 'all' | 'active';
+  setFilterStatus: (status: 'all' | 'active') => void;
+  sortBy: 'newest' | 'popular' | 'trending';
+  setSortBy: (sort: 'newest' | 'popular' | 'trending') => void;
 }
 
 export default function PollList({ 
@@ -35,33 +39,19 @@ export default function PollList({
   onCreatePoll, 
   onRefresh,
   userId,
-  isLoading = false 
+  isLoading = false,
+  filterStatus,
+  setFilterStatus,
+  sortBy,
+  setSortBy,
 }: PollListProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'closed'>('all');
-  const [sortBy, setSortBy] = useState<'newest' | 'popular' | 'trending'>('newest');
 
   const filteredPolls = polls
     .filter(poll => {
       const matchesSearch = poll.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           (poll.description && poll.description.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesFilter = filterStatus === 'all' || poll.status === filterStatus;
-      return matchesSearch && matchesFilter;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'newest':
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        case 'popular':
-          return b.total_votes - a.total_votes;
-        case 'trending':
-          // Trending: Combination of recent activity (likes + votes) and recency
-          const aTrendScore = (a.total_likes * 2) + a.total_votes + (Date.now() - new Date(a.created_at).getTime()) / (1000 * 60 * 60 * 24);
-          const bTrendScore = (b.total_likes * 2) + b.total_votes + (Date.now() - new Date(b.created_at).getTime()) / (1000 * 60 * 60 * 24);
-          return bTrendScore - aTrendScore;
-        default:
-          return 0;
-      }
+      return matchesSearch;
     });
 
   const containerVariants = {
@@ -102,7 +92,7 @@ export default function PollList({
             <Button
               variant="outline"
               size="sm"
-              onClick={onRefresh}
+              onClick={() => onRefresh(filterStatus, sortBy)}
               disabled={isLoading}
               className="flex items-center gap-2"
             >
@@ -146,13 +136,7 @@ export default function PollList({
             >
               Active
             </Button>
-            <Button
-              variant={filterStatus === 'closed' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilterStatus('closed')}
-            >
-              Closed
-            </Button>
+            
           </div>
           
           <div className="flex gap-2">
