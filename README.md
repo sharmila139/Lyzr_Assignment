@@ -2,6 +2,8 @@
 
 QuickPoll is an interactive, real-time polling platform designed for modern web environments. It allows users to create, vote on, and like polls, with all updates reflected live across connected clients. The platform emphasizes a smooth user experience with responsive design and engaging animations.
 
+Frontend deployed link: https://lyzr-assignment-vl9y-git-main-sharmilas-projects-96ab64f6.vercel.app?_vercel_share=QprPWXx59yka4w51Y9IZhuvKj95mDcSF
+
 ## System Design and Architecture
 
 QuickPoll is built as a full-stack application with a clear separation of concerns between its backend and frontend components, communicating primarily through RESTful APIs and WebSockets for real-time interactions.
@@ -107,7 +109,7 @@ This project is designed for deployment on platforms that support both Node.js (
 *   **Frontend (Vercel):** Ideal for Next.js applications, offering seamless integration and automatic deployments.
 *   **Backend (Vercel Serverless Functions):** FastAPI can be deployed as serverless functions on Vercel using the `vercel.json` configuration. This requires external PostgreSQL and Redis services.
 
-check: https://lyzr-assignment-git-main-sharmilas-projects-96ab64f6.vercel.app/
+check: [https://lyzr-assignment-git-main-sharmilas-projects-96ab64f6.vercel.app/](https://lyzr-assignment-vl9y-git-main-sharmilas-projects-96ab64f6.vercel.app?_vercel_share=QprPWXx59yka4w51Y9IZhuvKj95mDcSF)
 
 ## Testing
 
