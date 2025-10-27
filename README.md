@@ -2,26 +2,23 @@
 
 QuickPoll is an interactive, real-time polling platform designed for modern web environments. It allows users to create, vote on, and like polls, with all updates reflected live across connected clients. The platform emphasizes a smooth user experience with responsive design and engaging animations.
 
+Frontend deployed link: https://lyzr-assignment-vl9y-git-main-sharmilas-projects-96ab64f6.vercel.app?_vercel_share=QprPWXx59yka4w51Y9IZhuvKj95mDcSF
+
 ## System Design and Architecture
 
 QuickPoll is built as a full-stack application with a clear separation of concerns between its backend and frontend components, communicating primarily through RESTful APIs and WebSockets for real-time interactions.
 
-### Backend: FastAPI, PostgreSQL, and Redis
+Backend – FastAPI + PostgreSQL + Redis
 
-The backend is powered by **FastAPI**, a modern, high-performance Python web framework. It handles API requests, manages business logic, and serves WebSocket connections.
+*   FastAPI powers REST APIs and WebSockets.
+*   PostgreSQL handles data persistence via SQLModel (based on SQLAlchemy + Pydantic).
+*   Redis enables real-time updates using the Pub/Sub model — whenever a vote or like occurs, all connected clients receive updates instantly.
 
-*   **Database (PostgreSQL):** Data persistence is managed by **PostgreSQL**, a robust relational database. **SQLModel**, a library built on top of SQLAlchemy and Pydantic, is used for defining type-safe database models, ensuring data integrity and developer efficiency.
-*   **Real-time Communication (Redis & WebSockets):** For real-time updates, the backend leverages **Redis** as a Pub/Sub (Publish/Subscribe) messaging broker. When an event occurs (e.g., a vote is cast, a poll is created), the backend publishes a message to a Redis channel. All connected clients (via WebSockets) subscribe to these channels and receive instant updates, enabling the live analytics and auto-sync features. **WebSockets** provide a persistent, bidirectional communication channel between the server and clients.
+Frontend – Next.js + TypeScript + Tailwind + shadcn
 
-### Frontend: Next.js, TypeScript, and Tailwind CSS
-
-The frontend is a dynamic Single-Page Application (SPA) built with **Next.js 14** and its App Router, providing server-side rendering (SSR) and static site generation (SSG) capabilities for optimal performance and SEO.
-
-*   **Language (TypeScript):** The entire frontend is developed using **TypeScript**, enhancing code quality, maintainability, and developer experience through static type checking.
-*   **Styling (Tailwind CSS & shadcn/ui):** **Tailwind CSS**, a utility-first CSS framework, is used for rapid and consistent styling. It's complemented by **shadcn/ui**, a collection of beautifully designed, accessible, and customizable UI components built with Radix UI and Tailwind CSS.
-*   **Animations (Framer Motion):** **Framer Motion** is integrated to provide smooth, declarative animations and transitions, contributing to the platform's interactive and polished feel.
-*   **Notifications (Sonner):** **Sonner** is used for elegant and user-friendly toast notifications, providing clear feedback for user actions.
-*   **API & WebSocket Clients:** Custom API and WebSocket clients (`api.ts`, `websocket.ts`) handle communication with the FastAPI backend, abstracting away the complexities of HTTP requests and WebSocket message handling.
+*   Next.js 14 (App Router) provides a performant and SEO-friendly SPA.
+*   TypeScript ensures type-safe, maintainable code.
+*   Tailwind CSS + shadcn/ui handle fast, responsive UI design.
 
 ## Features
 
@@ -105,38 +102,6 @@ This project leverages several key technologies and libraries:
 *   **uvicorn:** ASGI server for running FastAPI.
 *   **websockets:** Python library for WebSocket communication.
 
-## Project Structure
-
-```
-quickpoll/
-├── backend/
-│   ├── models.py          # Database models (SQLModel)
-│   ├── database.py        # Database connection and session management
-│   ├── main.py            # FastAPI application entry point, API routes, WebSocket handler
-│   └── __init__.py
-├── frontend/
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── globals.css    # Global Tailwind CSS styles and custom animations
-│   │   │   ├── layout.tsx     # Root layout component for Next.js App Router
-│   │   │   └── page.tsx       # Main application page, integrates PollList
-│   │   ├── components/
-│   │   │   ├── Header.tsx         # Animated header component
-│   │   │   ├── PollCard.tsx       # Displays individual poll details
-│   │   │   ├── PollList.tsx       # Lists polls with filtering and sorting
-│   │   │   └── CreatePollModal.tsx # Modal for creating new polls
-│   │   └── lib/
-│   │       ├── api.ts         # Frontend API client for HTTP requests
-│   │       └── websocket.ts   # Frontend WebSocket client for real-time updates
-│   ├── components/ui/       # shadcn/ui components (generated)
-│   └── package.json         # Frontend dependencies and scripts
-├── requirements.txt        # Python backend dependencies
-├── start_backend.py       # Script to start the Uvicorn server for the backend
-├── start_frontend.js     # Script to start the Next.js development server
-├── vercel.json            # Vercel deployment configuration for monorepo
-└── README.md              # Project documentation
-```
-
 ## Deployment
 
 This project is designed for deployment on platforms that support both Node.js (for Next.js) and Python (for FastAPI serverless functions).
@@ -144,7 +109,7 @@ This project is designed for deployment on platforms that support both Node.js (
 *   **Frontend (Vercel):** Ideal for Next.js applications, offering seamless integration and automatic deployments.
 *   **Backend (Vercel Serverless Functions):** FastAPI can be deployed as serverless functions on Vercel using the `vercel.json` configuration. This requires external PostgreSQL and Redis services.
 
-check: https://lyzr-assignment-git-main-sharmilas-projects-96ab64f6.vercel.app/
+check: [https://lyzr-assignment-git-main-sharmilas-projects-96ab64f6.vercel.app/](https://lyzr-assignment-vl9y-git-main-sharmilas-projects-96ab64f6.vercel.app?_vercel_share=QprPWXx59yka4w51Y9IZhuvKj95mDcSF)
 
 ## Testing
 
