@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 
 from database import get_session, create_db_and_tables
-from .models import (
+from models import (
     Poll, PollCreate, PollRead, PollWithDetails,
     Option, OptionCreate, OptionRead,
     Vote, VoteCreate, VoteRead,
